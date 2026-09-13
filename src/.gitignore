@@ -1,0 +1,21 @@
+# Dependencias de Node
+node_modules/
+
+# Código JavaScript compilado
+dist/
+
+# Archivos de entorno y temporales
+*.log
+.env
+Abre tu archivo package.json y actualiza el nombre del proyecto
+:
+{
+  "name": "hour-control",
+  "version": "1.0.0",
+  "description": "Aplicación para el control y registro de jornadas laborales",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/jornada.ts"
+  }
+}
