@@ -1,58 +1,29 @@
-// 1. Definimos la estructura exacta que tendrá cada registro de trabajo
-interface RegistroJornada {
-  id: number;
-  usuario: string;
-  horaInicio: string;
-  horasTrabajadas:number;
-  activo: boolean;
-}
+import express, { Request, Response, NextFunction } from "express";
+import helmet from "helmet";
+import workdaysRouter from "./routes/jornadas.routes.js";
 
-// 2. Creamos un objeto que cumple obligatoriamente con la interfaz
-const marcaActual: RegistroJornada = {
-  id: 1,
-  usuario: "Pedro",
-  horaInicio: new Date().toLocaleTimeString(),
-  horasTrabajadas: 8,
-  activo: true
-};
+const app = express();
+const PORT = 3000;
 
-// 1. Declaramos un arreglo que solo acepta objetos del tipo RegistroJornada
-const historialJornadas: RegistroJornada[] = [];
+// 1. Middleware de seguridad para cabeceras HTTP
+app.use(helmet());
 
-// 2. Guardamos nuestro objeto 'marcaActual' dentro de la lista
-historialJornadas.push(marcaActual);
+// 2. Middleware para procesar cuerpos JSON
+app.use(express.json());
 
-// 3. Agregamos un segundo registro directamente al arreglo
-historialJornadas.push({
-  id: 2,
-  usuario: "Pedro",
-  horaInicio: "08:00:00",
-  horasTrabajadas: 7.5,
-  activo: false
+// 3. Middleware personalizado: Logger de peticiones entrantes
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next(); // Pasa el control al siguiente middleware o ruta
 });
 
-historialJornadas.push({
-  id: 3,
-  usuario: "Pedro",
-  horaInicio: "08:00:00",
-  horasTrabajadas: 9,
-  activo: false
+app.get("/", (req: Request, res: Response) => {
+  res.send("⏱️ hour-control API - Secured & Layered");
 });
 
-// 4. Mostramos el total de registros y la lista completa
-console.log(`📋 Total de registros: ${historialJornadas.length}`);
-console.log("📂 Historial completo:", historialJornadas);
+// Montamos las rutas de jornadas
+app.use("/jornadas", workdaysRouter);
 
-const jornadasTerminadas = historialJornadas.filter((registro) => !registro.activo);
-
-// 2. 'map' extrae de cada registro únicamente el número de horas trabajadas
-const resumenHoras: number[] = historialJornadas.map((registro) => registro.horasTrabajadas);
-
-const resumenHorasFinalizadas: number[] = historialJornadas
-                    .filter((registro) => !registro.activo)
-                    .map((registro) => registro.horasTrabajadas);
-
-// 3. Mostramos los resultados procesados en pantalla
-console.log("🔴 Jornadas finalizadas:", jornadasTerminadas.length);
-console.log("⏱️ Lista de horas trabajadas Finalizadas:", resumenHorasFinalizadas);
-console.log("⏱️ Lista de horas trabajadas:", resumenHoras);
+app.listen(PORT, () => {
+  console.log(`🚀 Server listening on http://localhost:${PORT}`);
+});
